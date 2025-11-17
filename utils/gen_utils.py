@@ -82,7 +82,7 @@ def load_base_model_fils(model_files_path: str, config_name: str):
     return base_model, config, scaler
 
 
-def load_finetune_model_fils(model_files_path: str, config_name: str):
+def load_finetune_model_fils(model_files_path: str, config_name: str, model_qualifiers: str):
     """Load finetuned model + config + scaler.
 
     Args:
@@ -97,6 +97,10 @@ def load_finetune_model_fils(model_files_path: str, config_name: str):
         config = json.load(f)
 
     model_path = config['files'].get('model')
+
+    if model_qualifiers is not None:
+        model_path = model_path.replace('finetuned', model_qualifiers)
+
     finetune_model = tf.keras.models.load_model(
         os.path.expanduser(model_path),
         custom_objects={'r2_keras': predictions.r2_keras}

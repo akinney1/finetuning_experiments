@@ -22,7 +22,7 @@ from sklearn.metrics import mean_squared_error as mse
 # autopep8: on
 
 
-#---------------Reresentative Forecasts functions
+# ---------------Reresentative Forecasts functions
 def create_legend(fig, bottom_margin, bbox_to_anchor):
     from matplotlib.lines import Line2D
     from matplotlib.patches import Rectangle
@@ -61,7 +61,7 @@ def create_legend(fig, bottom_margin, bbox_to_anchor):
     true_handle = Line2D([], [], color='tab:green', linestyle='--', linewidth=2)
 
     handles = [trap_handle, prob_handle, true_handle]
-    labels  = ['Trap samples', 'Probabilistic forecast', 'True prediction\ninterval bounds']
+    labels = ['Trap samples', 'Probabilistic forecast', 'True prediction\ninterval bounds']
 
     leg = fig.legend(
         handles, labels,
@@ -86,28 +86,30 @@ def format_forecast_single_plot(ax, sample, dist):
     sample.Datetime = pd.to_datetime(sample.Datetime)
     t0 = sample[sample.Location == 'Observed'].iloc[-1].Datetime
     observed = sample[sample.Location == 'Observed']
-    forecast = sample[sample.Datetime >= t0] #Include t0 week for continuity in plots
-    
-    #Add t0 line
+    forecast = sample[sample.Datetime >= t0]  # Include t0 week for continuity in plots
+
+    # Add t0 line
     ax.axvline(t0, linestyle='--', color='k', alpha=0.5)
-    
-    #Plot weekly traps
-    [ax.scatter(sample.Datetime, sample[col], s=s, color=trap_col, alpha=0.15) for col in trial_cols]
-    
-    #Plot point predictions
+
+    # Plot weekly traps
+    [ax.scatter(sample.Datetime, sample[col], s=s, color=trap_col, alpha=0.15)
+     for col in trial_cols]
+
+    # Plot point predictions
     ax.plot(observed.Datetime, observed.Point_predictions, alpha=0.35, color=pred_col)
     ax.plot(forecast.Datetime, forecast.Point_predictions, alpha=1, color=pred_col)
-    
-    #Plot 68% uncertainty bounds
-    if dist=='poisson':
+
+    # Plot 68% uncertainty bounds
+    if dist == 'poisson':
         l_quant, u_quant = analysis_utils.poisson_quant(forecast.Point_predictions, ci=0.68)
-    if dist=='negbin':
+    if dist == 'negbin':
         l_quant, u_quant = analysis_utils.negbin_quant(forecast.ns, forecast.mean_p, ci=0.68)
     ax.fill_between(forecast.Datetime, l_quant, u_quant, alpha=0.5, color=pred_col)
 
-    #Plot true quantile bounds
+    # Plot true quantile bounds
     ax.plot(sample.Datetime, sample.True_l_forecast_quant, linestyle='--', color=tru_col)
-    ax.plot(sample.Datetime, sample.True_u_forecast_quant, linestyle='--', color=tru_col, label='True prediction\ninterval bounds')
+    ax.plot(sample.Datetime, sample.True_u_forecast_quant, linestyle='--',
+            color=tru_col, label='True prediction\ninterval bounds')
 
     # Set date formatting for x-axis
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%b'%y"))
@@ -116,9 +118,10 @@ def format_forecast_single_plot(ax, sample, dist):
         if i % 2 != 0:
             label.set_visible(False)
 
-    #Add RMSE to top corner
-    rmse = np.sqrt(mse(forecast.iloc[1:].Ref, forecast.iloc[1:].Point_predictions)) / np.average(forecast.iloc[1:].Ref)
-    #ax.text(0.97, 0.95, fr'$\frac{{\mathrm{{RMSE}}}}{{\overline{{\mathrm{{trap}}}}}}$: {rmse:.2f}',
+    # Add RMSE to top corner
+    rmse = np.sqrt(
+        mse(forecast.iloc[1:].Ref, forecast.iloc[1:].Point_predictions)) / np.average(forecast.iloc[1:].Ref)
+    # ax.text(0.97, 0.95, fr'$\frac{{\mathrm{{RMSE}}}}{{\overline{{\mathrm{{trap}}}}}}$: {rmse:.2f}',
     #        transform=ax.transAxes, ha='right', va='top', fontsize='small')
     ax.text(
         0.75, 0.95,
@@ -132,14 +135,14 @@ def format_forecast_single_plot(ax, sample, dist):
     return ax
 
 
-#---------------Error bar plots
-def format_single_bar_plot(ax, avgs, stds, labels = []):
+# ---------------Error bar plots
+def format_single_bar_plot(ax, avgs, stds, labels=[]):
     if labels is None:
         labels = ['RMSE(wks. 1-4)', 'MAE(wk. 1)', 'MAE(wk. 2)', 'MAE(wk. 3)', 'MAE(wk. 4)']
-    
+
     # Define colors
-    #cmap = cm.get_cmap('viridis', len(labels) - 1)  # colormap for MAEs
-    #colors = ['maroon'] + [cmap(i) for i in range(len(labels) - 1)]
+    # cmap = cm.get_cmap('viridis', len(labels) - 1)  # colormap for MAEs
+    # colors = ['maroon'] + [cmap(i) for i in range(len(labels) - 1)]
     colors = ['#8B0000',  # deep maroon for RMSE
               '#6BAED6',  # light blue
               '#4292C6',  # medium blue

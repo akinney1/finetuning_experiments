@@ -15,7 +15,6 @@ from matplotlib.gridspec import GridSpec, GridSpecFromSubplotSpec
 import matplotlib as mpl
 
 import utils.gen_utils as gen_utils
-import utils.forecasting_utils as forecast_utils
 
 # autopep8: on
 
